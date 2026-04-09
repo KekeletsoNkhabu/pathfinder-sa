@@ -30,7 +30,7 @@ export default function ComparePage() {
       u.shortName.toLowerCase().includes(search.toLowerCase());
     const matchProv = filterProvince === 'all' || u.province === filterProvince;
     return matchSearch && matchProv;
-  });
+  }) as University[];
 
   const compareUniversities = compareList
     .map(id => UNIVERSITIES.find(u => u.id === id))
