@@ -11,9 +11,15 @@ export const AVAILABLE_SUBJECTS: SubjectOption[] = [
   { name: 'Afrikaans Home Language', group: 'Languages', isLanguage: true },
   { name: 'Afrikaans First Additional Language', group: 'Languages', isLanguage: true },
   { name: 'isiZulu Home Language', group: 'Languages', isLanguage: true },
+  { name: 'isiZulu First Additional Language', group: 'Languages', isLanguage: true },  
   { name: 'isiXhosa Home Language', group: 'Languages', isLanguage: true },
+  { name: 'isiXhosa First Additional Language', group: 'Languages', isLanguage: true },
   { name: 'Sesotho Home Language', group: 'Languages', isLanguage: true },
+  { name: 'Sesotho First Additional Language', group: 'Languages', isLanguage: true },
   { name: 'Sepedi Home Language', group: 'Languages', isLanguage: true },
+  { name: 'Sepedi First Additional Language', group: 'Languages', isLanguage: true },
+  { name: 'Setswana Home Language', group: 'Languages', isLanguage: true },
+  { name: 'Setswana First Additional Language', group: 'Languages', isLanguage: true },
 
   // Mathematics
   { name: 'Mathematics', group: 'Core' },
@@ -40,6 +46,9 @@ export const AVAILABLE_SUBJECTS: SubjectOption[] = [
   { name: 'Dramatic Arts', group: 'Humanities' },
   { name: 'Consumer Studies', group: 'Humanities' },
   { name: 'Tourism', group: 'Humanities' },
+
+  //Life Orientation
+  { name: 'Life Orientation', group: 'Core' },
 ];
 
 // NSC requires a minimum of 7 subjects: 2 languages + LO + 4 electives
@@ -60,6 +69,13 @@ export const normaliseSubjectName = (name: string): string => {
     'isiXhosa Home Language': 'IsiXhosa',
     'Sesotho Home Language': 'Sesotho',
     'Sepedi Home Language': 'Sepedi',
+    'Setswana Home Language': 'Setswana',
+    'isiZulu First Additional Language': 'IsiZulu',
+    'isiXhosa First Additional Language': 'IsiXhosa',
+    'Sesotho First Additional Language': 'Sesotho',
+    'Sepedi First Additional Language': 'Sepedi',
+    'Setswana First Additional Language': 'Setswana',
+    'Life Orientation': 'Life Orientation',
     'Physical Sciences': 'Physical Sciences',
     'Life Sciences': 'Life Sciences',
     'Computer Applications Technology': 'IT',
@@ -76,5 +92,5 @@ export const DEFAULT_SUBJECTS = [
   'Physical Sciences',
   'Life Sciences',
   'Accounting',
-  'Business Studies',
+  'Life Orientation',
 ];

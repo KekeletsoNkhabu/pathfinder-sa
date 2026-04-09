@@ -305,6 +305,7 @@ export const INTERESTS = [
   { id: 'technology', label: 'Technology & Coding', emoji: '💻' },
   { id: 'health', label: 'Health & Medicine', emoji: '🏥' },
   { id: 'business', label: 'Business & Finance', emoji: '📈' },
+  { id: 'accounting', label: 'Accounting & Finance', emoji: '🧾' },
   { id: 'engineering', label: 'Engineering & Building', emoji: '🔧' },
   { id: 'arts', label: 'Arts & Design', emoji: '🎨' },
   { id: 'law', label: 'Law & Justice', emoji: '⚖️' },
