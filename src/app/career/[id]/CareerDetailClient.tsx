@@ -17,7 +17,6 @@ import AdmissionBadge from '@/components/ui/AdmissionBadge';
 
 import { useAppState } from '@/hooks/useAppState';
 import { CAREERS } from '@/data/careers';
-import { getUniversitiesForCareer } from '@/data/universities';
 import { matchCareer, getAdmissionLikelihood } from '@/utils/aps';
 import { formatCurrency } from '@/utils/storage';
 import { cn } from '@/utils/cn';
@@ -33,7 +32,6 @@ export default function CareerDetailClient({ id }: { id: string }) {
   } = useAppState();
 
   const career = CAREERS.find(c => c.id === id);
-  const universities = getUniversitiesForCareer(id);
 
   useEffect(() => {
     if (hydrated && !career) {
@@ -115,16 +113,6 @@ export default function CareerDetailClient({ id }: { id: string }) {
           ))}
         </div>
 
-        {/* Universities */}
-        <div className="card p-6 mb-6">
-          <h2 className="text-xl text-white mb-4">Top Universities</h2>
-
-          {universities.slice(0, 3).map((uni) => (
-            <div key={uni.id} className="mb-2">
-              {uni.name}
-            </div>
-          ))}
-        </div>
 
         {/* Salary */}
         <div className="card p-6 mb-6">

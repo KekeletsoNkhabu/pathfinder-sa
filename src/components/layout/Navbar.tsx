@@ -66,12 +66,6 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                href="/dashboard"
-                className="ml-3 btn-primary text-sm py-2 px-4"
-              >
-                Get Started
-              </Link>
             </div>
 
             {/* Mobile toggle */}

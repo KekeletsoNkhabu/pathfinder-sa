@@ -1,6 +1,8 @@
 {
-  "/page": "app/page.js",
-  "/compare/page": "app/compare/page.js",
   "/results/page": "app/results/page.js",
-  "/dashboard/page": "app/dashboard/page.js"
+  "/compare/page": "app/compare/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/career/[id]/page": "app/career/[id]/page.js",
+  "/university/[id]/page": "app/university/[id]/page.js",
+  "/api/university-programs/route": "app/api/university-programs/route.js"
 }
