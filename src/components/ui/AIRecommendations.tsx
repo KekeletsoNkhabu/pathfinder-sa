@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
@@ -11,15 +12,18 @@ import {
   Banknote,
   AlertCircle,
   Heart,
-  ChevronDown,
-  ChevronUp,
-  BookOpen,
-  Briefcase,
-  CalendarDays,
-  Phone,
+  ShoppingCart,
+  Check,
+  ArrowRight,
+  X,
 } from "lucide-react";
+import Link from "next/link";
 import { AIRecommendation } from "@/hooks/useAIRecommendations";
-import { useCourseDetails } from "@/hooks/useAIRecommendations";
+import {
+  useApplicationCart,
+  SERVICE_FEE,
+  MAX_APPLICATIONS,
+} from "@/hooks/useApplicationCart";
 import MatchBar from "./MatchBar";
 import { cn } from "@/utils/cn";
 
@@ -27,8 +31,8 @@ interface AIRecommendationsProps {
   recommendations: AIRecommendation[];
   loading: boolean;
   error: string | null;
-  savedCareers: string[];
-  onToggleSave: (id: string) => void;
+  savedCareers?: string[];
+  onToggleSave?: (id: string) => void;
 }
 
 const demandColors: Record<string, string> = {
@@ -42,177 +46,15 @@ function formatZAR(n: number) {
   return `R${(n / 1000).toFixed(0)}k`;
 }
 
-// ── Expandable course detail panel ───────────────────────────────────────────
-
-function CourseDetailPanel({
-  courseId,
-  courseTitle,
-  universityName,
-}: {
-  courseId: string;
-  courseTitle: string;
-  universityName: string;
-}) {
-  const { details, loading, error, fetchDetails } = useCourseDetails();
-  const [open, setOpen] = useState(false);
-
-  const detail = details[courseId];
-  const isLoading = loading[courseId];
-  const detailError = error[courseId];
-
-  const handleToggle = () => {
-    if (!open && !detail) {
-      fetchDetails(courseId, courseTitle, universityName);
-    }
-    setOpen((prev) => !prev);
-  };
-
-  return (
-    <div className="mt-3 border-t border-white/5 pt-3">
-      <button
-        onClick={handleToggle}
-        className="flex items-center gap-2 text-xs font-semibold text-[#CAFF00] hover:text-white transition-colors"
-      >
-        <BookOpen size={13} />
-        {open ? "Hide details" : "Read more about this course"}
-        {open ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-      </button>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden"
-          >
-            <div className="mt-3 space-y-3">
-              {/* Loading */}
-              {isLoading && (
-                <div className="flex items-center gap-2 text-xs text-[#555]">
-                  <Loader2 size={13} className="animate-spin text-[#CAFF00]" />
-                  AI is gathering course details…
-                </div>
-              )}
-
-              {/* Error */}
-              {detailError && (
-                <div className="flex items-center gap-2 text-xs text-red-400 p-2 rounded-lg bg-red-500/10">
-                  <AlertCircle size={13} />
-                  {detailError}
-                </div>
-              )}
-
-              {/* Detail content */}
-              {detail && (
-                <div className="space-y-3 text-xs">
-                  {/* Overview */}
-                  {detail.overview && (
-                    <p className="text-[#888] leading-relaxed">
-                      {detail.overview}
-                    </p>
-                  )}
-
-                  {/* Modules */}
-                  {detail.modules?.length > 0 && (
-                    <div>
-                      <p className="text-[10px] text-[#555] uppercase tracking-wider mb-1.5">
-                        Key modules
-                      </p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {detail.modules.map((m) => (
-                          <span
-                            key={m}
-                            className="text-[10px] px-2 py-0.5 rounded-md bg-white/5 text-[#777]"
-                          >
-                            {m}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Career outcomes */}
-                  {detail.careerOutcomes?.length > 0 && (
-                    <div>
-                      <p className="text-[10px] text-[#555] uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                        <Briefcase size={10} /> Career paths
-                      </p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {detail.careerOutcomes.map((c) => (
-                          <span
-                            key={c}
-                            className="text-[10px] px-2 py-0.5 rounded-md bg-[#CAFF00]/5 text-[#CAFF00]/70 border border-[#CAFF00]/10"
-                          >
-                            {c}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Salary */}
-                  {detail.salaryRange && (
-                    <p className="flex items-center gap-1 text-[#CAFF00] font-semibold">
-                      <Banknote size={12} />
-                      {formatZAR(detail.salaryRange.min)}–
-                      {formatZAR(detail.salaryRange.max)} p/a
-                    </p>
-                  )}
-
-                  {/* Admission */}
-                  {detail.admissionProcess && (
-                    <div className="p-2.5 rounded-lg bg-white/3 border border-white/5">
-                      <p className="text-[10px] text-[#555] uppercase tracking-wider mb-1">
-                        How to apply
-                      </p>
-                      <p className="text-[#888] leading-relaxed">
-                        {detail.admissionProcess}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Deadline + contact */}
-                  <div className="flex flex-wrap gap-3 text-[#666]">
-                    {detail.applicationDeadline && (
-                      <span className="flex items-center gap-1">
-                        <CalendarDays size={11} />
-                        Apply by: {detail.applicationDeadline}
-                      </span>
-                    )}
-                    {detail.contactInfo && (
-                      <span className="flex items-center gap-1">
-                        <Phone size={11} />
-                        {detail.contactInfo}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* NSFAS */}
-                  {detail.nsfasAvailable && (
-                    <span className="inline-block text-[10px] text-emerald-400 font-semibold">
-                      NSFAS Available ✓
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-// ── Main component ────────────────────────────────────────────────────────────
-
 export default function AIRecommendations({
   recommendations,
   loading,
   error,
-  savedCareers,
+  savedCareers = [],
   onToggleSave,
 }: AIRecommendationsProps) {
+  const { items, addItem, removeItem, isInCart } = useApplicationCart();
+
   if (loading) {
     return (
       <motion.div
@@ -262,36 +104,77 @@ export default function AIRecommendations({
 
   if (!recommendations.length) return null;
 
+  const cartFull = items.length >= MAX_APPLICATIONS;
+
   return (
     <AnimatePresence>
-      <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div className="space-y-4">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="col-span-full flex items-center gap-2 mb-2"
+          className="flex items-center justify-between mb-2"
         >
-          <Sparkles size={16} className="text-[#CAFF00]" />
-          <span className="text-sm font-semibold text-[#CAFF00]">
-            {recommendations.length} AI-Recommended Courses
-          </span>
-          <span className="text-xs text-[#555]">
-            — personalised for your profile
-          </span>
+          <div className="flex items-center gap-2">
+            <Sparkles size={16} className="text-[#CAFF00]" />
+            <span className="text-sm font-semibold text-[#CAFF00]">
+              {recommendations.length} AI-Recommended Courses
+            </span>
+            <span className="text-xs text-[#555] hidden sm:inline">
+              — personalised for your profile
+            </span>
+          </div>
         </motion.div>
+
+        {/* Cart banner — shown when items are in cart */}
+        {items.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 rounded-xl bg-[#CAFF00]/8 border border-[#CAFF00]/25 flex items-center justify-between gap-4"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-[#CAFF00]/15 flex items-center justify-center">
+                <ShoppingCart size={15} className="text-[#CAFF00]" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-white">
+                  {items.length}/{MAX_APPLICATIONS} applications selected
+                </p>
+                <p className="text-xs text-[#666]">
+                  Service fee: R{SERVICE_FEE} total (flat rate)
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/apply"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#CAFF00] text-black text-xs font-bold hover:bg-[#b8e600] transition-all flex-shrink-0"
+            >
+              Apply Now
+              <ArrowRight size={13} />
+            </Link>
+          </motion.div>
+        )}
 
         {/* Cards */}
         {recommendations
           .sort((a, b) => b.matchScore - a.matchScore)
           .map((rec, i) => {
+            const inCart = isInCart(rec.id);
             const isSaved = savedCareers.includes(rec.id);
+
             return (
               <motion.div
                 key={rec.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.07 }}
-                className="card p-5 group hover:border-[#CAFF00]/15 transition-colors flex flex-col"
+                className={cn(
+                  "card p-5 group transition-colors",
+                  inCart
+                    ? "border-[#CAFF00]/25 bg-[#CAFF00]/3"
+                    : "hover:border-[#CAFF00]/15",
+                )}
               >
                 {/* Top row */}
                 <div className="flex items-start gap-3 mb-3">
@@ -299,46 +182,42 @@ export default function AIRecommendations({
                     {rec.emoji}
                   </div>
                   <div className="flex-1 min-w-0">
-                    {/* ── Full title, no truncation ── */}
-                    <h3 className="font-bold text-white leading-tight">
+                    <h3 className="font-bold text-white leading-tight truncate">
                       {rec.title}
                     </h3>
                     <div className="flex items-center gap-1.5 mt-0.5">
-                      <Building2
-                        size={11}
-                        className="text-[#555] flex-shrink-0"
-                      />
-                      <span className="text-xs text-[#666]">
+                      <Building2 size={11} className="text-[#555]" />
+                      <span className="text-xs text-[#666] truncate">
                         {rec.universityName}
                       </span>
                     </div>
                   </div>
-
-                  {/* Demand badge */}
-                  <span
-                    className={cn(
-                      "text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0",
-                      demandColors[rec.demandLevel] ?? demandColors.Medium,
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <span
+                      className={cn(
+                        "text-[10px] font-semibold px-2 py-0.5 rounded-full",
+                        demandColors[rec.demandLevel] ?? demandColors.Medium,
+                      )}
+                    >
+                      {rec.demandLevel}
+                    </span>
+                    {onToggleSave && (
+                      <button
+                        onClick={() => onToggleSave(rec.id)}
+                        className={cn(
+                          "p-1.5 rounded-lg transition-all",
+                          isSaved
+                            ? "text-[#CAFF00] bg-[#CAFF00]/10"
+                            : "text-[#444] hover:text-[#CAFF00] hover:bg-[#CAFF00]/5",
+                        )}
+                      >
+                        <Heart
+                          size={13}
+                          fill={isSaved ? "currentColor" : "none"}
+                        />
+                      </button>
                     )}
-                  >
-                    {rec.demandLevel}
-                  </span>
-
-                  {/* Bookmark */}
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      onToggleSave(rec.id);
-                    }}
-                    className={cn(
-                      "p-2 rounded-lg transition-all flex-shrink-0",
-                      isSaved
-                        ? "bg-[#CAFF00]/10 text-[#CAFF00]"
-                        : "bg-white/5 text-[#555] hover:text-[#CAFF00] hover:bg-[#CAFF00]/5",
-                    )}
-                  >
-                    <Heart size={15} fill={isSaved ? "currentColor" : "none"} />
-                  </button>
+                  </div>
                 </div>
 
                 {/* Description */}
@@ -346,7 +225,7 @@ export default function AIRecommendations({
                   {rec.description}
                 </p>
 
-                {/* Meta */}
+                {/* Meta row */}
                 <div className="flex flex-wrap gap-3 text-xs text-[#666] mb-3">
                   <span className="flex items-center gap-1">
                     <GraduationCap size={11} /> {rec.degree}
@@ -409,15 +288,72 @@ export default function AIRecommendations({
                   </div>
                 )}
 
-                {/* ── Read More (AI course details) ── */}
-                <CourseDetailPanel
-                  courseId={rec.id}
-                  courseTitle={rec.title}
-                  universityName={rec.universityName}
-                />
+                {/* ── Apply button ── */}
+                <div className="mt-4 pt-3 border-t border-white/5">
+                  {inCart ? (
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#CAFF00]/10 border border-[#CAFF00]/20">
+                        <Check size={13} className="text-[#CAFF00]" />
+                        <span className="text-xs font-semibold text-[#CAFF00]">
+                          Added to application
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => removeItem(rec.id)}
+                        className="p-2.5 rounded-xl bg-white/5 text-[#555] hover:text-red-400 hover:bg-red-400/10 transition-all"
+                        title="Remove from cart"
+                      >
+                        <X size={13} />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => addItem(rec)}
+                      disabled={cartFull}
+                      className={cn(
+                        "w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all",
+                        cartFull
+                          ? "bg-white/3 text-[#444] border border-white/5 cursor-not-allowed"
+                          : "bg-white/5 text-[#999] border border-white/8 hover:bg-[#CAFF00]/10 hover:text-[#CAFF00] hover:border-[#CAFF00]/20",
+                      )}
+                    >
+                      <ShoppingCart size={13} />
+                      {cartFull
+                        ? `Cart full (${MAX_APPLICATIONS} max)`
+                        : "Add to Application"}
+                    </button>
+                  )}
+                </div>
               </motion.div>
             );
           })}
+
+        {/* Bottom CTA when cart has items */}
+        {items.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="sticky bottom-4 pt-2"
+          >
+            <Link
+              href="/apply"
+              className="flex items-center justify-between w-full px-6 py-4 rounded-2xl bg-[#CAFF00] text-black font-bold hover:bg-[#b8e600] transition-all shadow-lg shadow-[#CAFF00]/20"
+            >
+              <div className="flex items-center gap-3">
+                <ShoppingCart size={18} />
+                <div className="text-left">
+                  <p className="text-sm font-bold">
+                    Proceed to Apply ({items.length}/{MAX_APPLICATIONS})
+                  </p>
+                  <p className="text-xs font-medium opacity-70">
+                    R{SERVICE_FEE} service fee · flat rate
+                  </p>
+                </div>
+              </div>
+              <ArrowRight size={20} />
+            </Link>
+          </motion.div>
+        )}
       </div>
     </AnimatePresence>
   );
