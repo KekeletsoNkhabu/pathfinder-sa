@@ -1,10 +1,8 @@
 import { CAREERS } from '@/data/careers';
-import CareerDetailClient from './CareerDetailClient';
+import CareerDetailClient from '@/components/ui/CareerDetailClient';
 
 export function generateStaticParams() {
-  return CAREERS.map((career) => ({
-    id: career.id,
-  }));
+  return CAREERS.map((career) => ({ id: career.id }));
 }
 
 export default function Page({ params }: { params: { id: string } }) {

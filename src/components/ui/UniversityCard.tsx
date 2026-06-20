@@ -1,9 +1,12 @@
-"use client";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { Heart, GitCompare, MapPin, Star, ArrowRight } from "lucide-react";
-import { University } from "@/types";
-import { cn } from "@/utils/cn";
+'use client';
+import { motion } from 'framer-motion';
+import { Star, MapPin, GitCompare, Heart, ArrowRight, Receipt } from 'lucide-react';
+import Link from 'next/link';
+import { University } from '@/types';
+import AdmissionBadge from './AdmissionBadge';
+import { getAdmissionLikelihood } from '@/utils/aps';
+import { UNIVERSITY_FEES } from '@/data/universityFees';
+import { cn } from '@/utils/cn';
 
 interface UniversityCardProps {
   university: University;
@@ -16,154 +19,121 @@ interface UniversityCardProps {
 }
 
 export default function UniversityCard({
-  university,
-  saved,
-  inCompare,
-  onToggleSave,
-  onToggleCompare,
-  studentAPS,
-  index = 0,
+  university: u, saved, inCompare, onToggleSave, onToggleCompare, studentAPS, index = 0
 }: UniversityCardProps) {
-  const canApply = studentAPS ? studentAPS >= university.minAPS : null;
+  const likelihood = studentAPS ? getAdmissionLikelihood(studentAPS, u.minAPS) : null;
+  const feeInfo = UNIVERSITY_FEES.find(f => f.id === u.id);
+  const KZN_IDS = ['ukzn', 'dut', 'mut', 'unizulu'];
+  const appFee = feeInfo
+    ? KZN_IDS.includes(u.id)
+      ? { fee: 250, isFree: false, note: 'R250 via CAO' }
+      : { fee: feeInfo.applicationFee, isFree: feeInfo.applicationFee === 0, note: feeInfo.feeNote }
+    : null;
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.07 }}
-      className="card group relative overflow-hidden"
+      transition={{ delay: index * 0.05 }}
+      className="card p-5 flex flex-col gap-3 transition-all"
+      style={{ borderTop: `3px solid ${u.color}` }}
     >
-      {/* Top accent */}
-      <div
-        className="h-1 w-full rounded-t-[16px]"
-        style={{ backgroundColor: university.color }}
-      />
-
-      <div className="p-5">
-        <div className="flex items-start justify-between gap-3 mb-3">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-[10px] font-mono text-[#555]">
-                #{university.ranking} SA Ranked
-              </span>
-              {university.nsfasAvailable && (
-                <span className="badge badge-green text-[10px] py-0.5 px-2">
-                  NSFAS
-                </span>
-              )}
-            </div>
-            <h3 className="font-display font-bold text-white leading-tight">
-              {university.name}
-            </h3>
-            <div className="flex items-center gap-1 mt-1">
-              <MapPin size={11} className="text-[#555]" />
-              <span className="text-xs text-[#666]">{university.location}</span>
-            </div>
+      {/* Header row */}
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-0.5">
+            <span className="font-bold text-white text-sm">{u.shortName}</span>
+            <span className="text-[10px] text-[#555] font-mono bg-white/5 px-1.5 py-0.5 rounded-md">#{u.ranking} SA</span>
           </div>
-          <div className="flex items-center gap-1 flex-shrink-0">
-            <Star size={12} className="text-[#CAFF00] fill-[#CAFF00]" />
-            <span className="text-sm font-bold text-[#CAFF00]">
-              {university.overallRating}
-            </span>
-          </div>
+          <p className="text-xs text-[#666] truncate">{u.name}</p>
+          <p className="text-[10px] text-[#444] flex items-center gap-1 mt-0.5">
+            <MapPin size={9} />{u.location}
+          </p>
         </div>
-
-        {/* APS bar */}
-        <div
-          className={cn(
-            "flex items-center gap-2 px-3 py-2 rounded-lg mb-3",
-            canApply === true
-              ? "bg-[#CAFF00]/5 border border-[#CAFF00]/15"
-              : canApply === false
-                ? "bg-red-500/5 border border-red-500/15"
-                : "bg-white/3 border border-white/5",
-          )}
-        >
-          <span className="text-xs text-[#666]">Min APS:</span>
-          <span
-            className={cn(
-              "text-sm font-bold",
-              canApply === true
-                ? "text-[#CAFF00]"
-                : canApply === false
-                  ? "text-red-400"
-                  : "text-white",
-            )}
-          >
-            {university.minAPS}
-          </span>
-          {canApply !== null && (
-            <span
-              className={cn(
-                "ml-auto text-[10px] font-semibold",
-                canApply ? "text-[#CAFF00]" : "text-red-400",
-              )}
-            >
-              {canApply ? "✓ Meets requirement" : "✗ Below requirement"}
-            </span>
-          )}
-        </div>
-
-        {/* Tags */}
-        <div className="flex flex-wrap gap-1.5 mb-4">
-          {university.tags.slice(0, 3).map((tag) => (
-            <span
-              key={tag}
-              className="text-[10px] px-2 py-1 rounded-md bg-white/4 text-[#777] border border-white/5"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        {/* Save / Compare */}
-        <div className="flex gap-2 mb-3">
+        <div className="flex gap-1.5 flex-shrink-0">
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              onToggleSave(university.id);
-            }}
-            className={cn(
-              "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all flex-1 justify-center",
-              saved
-                ? "bg-[#CAFF00]/10 text-[#CAFF00] border border-[#CAFF00]/20"
-                : "bg-white/4 text-[#666] border border-white/5 hover:text-[#CAFF00] hover:bg-[#CAFF00]/5",
-            )}
+            onClick={() => onToggleSave(u.id)}
+            className={cn('p-1.5 rounded-lg transition-all', saved ? 'text-[#CAFF00]' : 'text-[#444] hover:text-[#CAFF00]')}
           >
-            <Heart size={12} fill={saved ? "currentColor" : "none"} />
-            {saved ? "Saved" : "Save"}
+            <Heart size={13} fill={saved ? 'currentColor' : 'none'} />
           </button>
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              onToggleCompare(university.id);
-            }}
+            onClick={() => onToggleCompare(u.id)}
             className={cn(
-              "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all flex-1 justify-center",
+              'px-2 py-1 rounded-lg border transition-all text-[10px] font-semibold flex items-center gap-1',
               inCompare
-                ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                : "bg-white/4 text-[#666] border border-white/5 hover:text-blue-400 hover:bg-blue-500/5",
+                ? 'text-[#CAFF00]'
+                : 'text-[#555] hover:text-white'
             )}
+            style={inCompare
+              ? { background: 'rgba(202,255,0,0.08)', borderColor: 'rgba(202,255,0,0.25)' }
+              : { background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.08)' }}
           >
-            <GitCompare size={12} />
-            {inCompare ? "Comparing" : "Compare"}
+            <GitCompare size={11} />
+            {inCompare ? 'Added' : 'Compare'}
           </button>
         </div>
-
-        {/* ── View all programmes → university detail page ── */}
-        <Link
-          href={`/university/${university.id}`}
-          className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl bg-white/3 hover:bg-[#CAFF00]/5 border border-white/5 hover:border-[#CAFF00]/20 transition-all group/cta"
-        >
-          <span className="text-sm font-medium text-[#999] group-hover/cta:text-white transition-colors">
-            View all programmes
-          </span>
-          <ArrowRight
-            size={15}
-            className="text-[#555] group-hover/cta:text-[#CAFF00] group-hover/cta:translate-x-1 transition-all"
-          />
-        </Link>
       </div>
+
+      {/* Stats row */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-1">
+          <Star size={10} className="text-[#CAFF00] fill-[#CAFF00]" />
+          <span className="text-xs text-[#CAFF00] font-bold">{u.overallRating}/10</span>
+        </div>
+        <span className="text-[#222]">·</span>
+        <span className="text-xs text-[#666]">Min APS <strong className="text-[#aaa]">{u.minAPS}</strong></span>
+        {u.nsfasAvailable && (
+          <span className="ml-auto text-[9px] font-bold text-emerald-400 px-1.5 py-0.5 rounded-full"
+            style={{ background: 'rgba(52,211,153,0.1)' }}>
+            NSFAS ✓
+          </span>
+        )}
+      </div>
+
+      {/* Application fee — large prominent pill */}
+      {appFee && (
+        <div className="flex items-center gap-2 px-3 py-2 rounded-xl"
+          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+          <Receipt size={12} className="text-[#555] flex-shrink-0" />
+          <span className="text-xs text-[#666]">Application fee:</span>
+          {appFee.isFree ? (
+            <span className="ml-auto text-xs font-bold text-emerald-400 px-2 py-0.5 rounded-full"
+              style={{ background: 'rgba(52,211,153,0.1)' }}>
+              FREE
+            </span>
+          ) : (
+            <div className="ml-auto flex flex-col items-end">
+              <span className="text-sm font-bold text-amber-400">R{appFee.fee}</span>
+              {appFee.note && appFee.note !== `R${appFee.fee}` && (
+                <span className="text-[9px] text-[#555] leading-none mt-0.5">{appFee.note}</span>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Admission likelihood */}
+      {likelihood && <AdmissionBadge likelihood={likelihood} size="sm" />}
+
+      {/* Tags */}
+      <div className="flex flex-wrap gap-1.5">
+        {u.tags.slice(0, 3).map(t => (
+          <span key={t} className="text-[9px] px-1.5 py-0.5 rounded-md text-[#555]"
+            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            {t}
+          </span>
+        ))}
+      </div>
+
+      {/* CTA */}
+      <Link
+        href={`/university/${u.id}`}
+        className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs text-[#777] hover:text-white transition-all"
+        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+      >
+        View All Programmes <ArrowRight size={11} />
+      </Link>
     </motion.div>
   );
 }

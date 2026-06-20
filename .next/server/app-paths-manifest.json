@@ -1,7 +1,10 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
   "/page": "app/page.js",
+  "/compare/page": "app/compare/page.js",
   "/results/page": "app/results/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/api/recommend/route": "app/api/recommend/route.js",
   "/apply/page": "app/apply/page.js",
-  "/dashboard/page": "app/dashboard/page.js"
+  "/university/[id]/page": "app/university/[id]/page.js",
+  "/api/university-programs/route": "app/api/university-programs/route.js"
 }

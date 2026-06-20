@@ -1,45 +1,23 @@
 'use client';
-import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
-interface MatchBarProps {
-  percentage: number;
-  showLabel?: boolean;
-  height?: number;
-}
+interface MatchBarProps { percentage: number; }
 
-const getColor = (pct: number) => {
-  if (pct >= 80) return '#CAFF00';
-  if (pct >= 60) return '#86efac';
-  if (pct >= 40) return '#fbbf24';
-  return '#f87171';
-};
-
-export default function MatchBar({ percentage, showLabel = true, height = 6 }: MatchBarProps) {
-  const [animated, setAnimated] = useState(false);
-
-  useEffect(() => {
-    const t = setTimeout(() => setAnimated(true), 100);
-    return () => clearTimeout(t);
-  }, []);
-
-  const color = getColor(percentage);
-
+export default function MatchBar({ percentage }: MatchBarProps) {
+  const color = percentage >= 80 ? '#CAFF00' : percentage >= 60 ? '#86efac' : percentage >= 40 ? '#fbbf24' : '#f87171';
   return (
-    <div className="w-full">
-      {showLabel && (
-        <div className="flex justify-between items-center mb-1.5">
-          <span className="text-xs text-[#666]">Match</span>
-          <span className="text-xs font-bold" style={{ color }}>{percentage}%</span>
-        </div>
-      )}
-      <div className="match-bar-track" style={{ height }}>
+    <div className="mt-2">
+      <div className="flex justify-between items-center mb-1">
+        <span className="text-[10px] text-[#555] uppercase tracking-wider">Match</span>
+        <span className="text-xs font-bold font-mono" style={{ color }}>{percentage}%</span>
+      </div>
+      <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
         <motion.div
-          className="match-bar-fill"
+          className="h-full rounded-full"
           style={{ backgroundColor: color }}
           initial={{ width: 0 }}
-          animate={{ width: animated ? `${percentage}%` : 0 }}
-          transition={{ duration: 0.8, ease: [0.34, 1.56, 0.64, 1] }}
+          animate={{ width: `${percentage}%` }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
         />
       </div>
     </div>

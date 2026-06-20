@@ -1,24 +1,15 @@
-import { MatchType } from '@/types';
 import { cn } from '@/utils/cn';
-import { CheckCircle2, AlertCircle, TrendingUp } from 'lucide-react';
 
-interface MatchBadgeProps {
-  type: MatchType;
-  size?: 'sm' | 'md';
-}
+interface MatchBadgeProps { type: string; }
 
-const config = {
-  strong: { label: 'Strong Match', icon: CheckCircle2, className: 'badge-lime' },
-  possible: { label: 'Possible Match', icon: AlertCircle, className: 'badge-orange' },
-  reach: { label: 'Reach Goal', icon: TrendingUp, className: 'badge-blue' },
+const MAP: Record<string, { label: string; className: string }> = {
+  perfect: { label: '✦ Perfect Match', className: 'bg-[#CAFF00]/10 text-[#CAFF00] border border-[#CAFF00]/20' },
+  strong:  { label: '▲ Strong Match', className: 'bg-emerald-400/10 text-emerald-400 border border-emerald-400/20' },
+  possible:{ label: '◆ Possible Match', className: 'bg-amber-400/10 text-amber-400 border border-amber-400/20' },
+  stretch: { label: '△ Stretch Goal', className: 'bg-red-400/10 text-red-400 border border-red-400/20' },
 };
 
-export default function MatchBadge({ type, size = 'md' }: MatchBadgeProps) {
-  const { label, icon: Icon, className } = config[type];
-  return (
-    <span className={cn('badge', className, size === 'sm' && 'text-[10px] py-0.5 px-2')}>
-      <Icon size={size === 'sm' ? 9 : 11} />
-      {label}
-    </span>
-  );
+export default function MatchBadge({ type }: MatchBadgeProps) {
+  const m = MAP[type] ?? MAP.stretch;
+  return <span className={cn('text-xs px-2.5 py-1 rounded-full font-semibold', m.className)}>{m.label}</span>;
 }

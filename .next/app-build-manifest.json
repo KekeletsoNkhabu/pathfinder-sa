@@ -11,25 +11,30 @@
       "static/css/css-src_app_globals_css.css",
       "static/chunks/app/layout.js"
     ],
-    "/dashboard/page": [
+    "/compare/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/page.js"
+      "static/chunks/app/compare/page.js"
     ],
     "/results/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/results/page.js"
     ],
+    "/dashboard/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/page.js"
+    ],
     "/apply/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/apply/page.js"
     ],
-    "/_not-found/page": [
+    "/university/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
+      "static/chunks/app/university/[id]/page.js"
     ]
   }
 }

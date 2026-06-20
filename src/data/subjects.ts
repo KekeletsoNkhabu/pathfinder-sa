@@ -54,8 +54,12 @@ export const AVAILABLE_SUBJECTS: SubjectOption[] = [
 // NSC requires a minimum of 7 subjects: 2 languages + LO + 4 electives
 export const REQUIRED_SUBJECTS = [
   'English Home Language',
+  'Sesotho Home Language',
+  'Sesotho First Additional Language',
   'English First Additional Language',
   'Afrikaans Home Language',
+  'Afrikaans First Additional Language',
+  'Life Orientation',
 ];
 
 // Normalise subject names for matching

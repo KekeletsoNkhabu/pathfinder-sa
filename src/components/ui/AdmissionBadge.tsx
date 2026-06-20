@@ -1,25 +1,23 @@
-import { AdmissionLikelihood } from '@/utils/aps';
-import { CheckCircle2, MinusCircle, XCircle } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
-interface AdmissionBadgeProps {
-  likelihood: AdmissionLikelihood;
-  showIcon?: boolean;
-  size?: 'sm' | 'md';
-}
+interface AdmissionBadgeProps { likelihood: string; size?: 'sm' | 'md'; }
 
-const config: Record<AdmissionLikelihood, { label: string; icon: typeof CheckCircle2; cls: string }> = {
-  Likely: { label: 'Likely', icon: CheckCircle2, cls: 'badge-lime' },
-  Borderline: { label: 'Borderline', icon: MinusCircle, cls: 'badge-orange' },
-  Unlikely: { label: 'Unlikely', icon: XCircle, cls: 'badge-red' },
+const MAP: Record<string, { label: string; className: string }> = {
+  'very-likely': { label: 'Very Likely', className: 'bg-[#CAFF00]/10 text-[#CAFF00] border border-[#CAFF00]/20' },
+  'likely':      { label: 'Likely', className: 'bg-emerald-400/10 text-emerald-400 border border-emerald-400/20' },
+  'borderline':  { label: 'Borderline', className: 'bg-amber-400/10 text-amber-400 border border-amber-400/20' },
+  'unlikely':    { label: 'Unlikely', className: 'bg-red-400/10 text-red-400 border border-red-400/20' },
 };
 
-export default function AdmissionBadge({ likelihood, showIcon = true, size = 'md' }: AdmissionBadgeProps) {
-  const { label, icon: Icon, cls } = config[likelihood];
+export default function AdmissionBadge({ likelihood, size = 'md' }: AdmissionBadgeProps) {
+  const m = MAP[likelihood] ?? MAP['borderline'];
   return (
-    <span className={cn('badge', cls, size === 'sm' && 'text-[10px] py-0.5 px-2')}>
-      {showIcon && <Icon size={size === 'sm' ? 9 : 11} />}
-      {label}
+    <span className={cn(
+      'rounded-full font-semibold border',
+      size === 'sm' ? 'text-[9px] px-2 py-0.5' : 'text-xs px-2.5 py-1',
+      m.className
+    )}>
+      {m.label}
     </span>
   );
 }

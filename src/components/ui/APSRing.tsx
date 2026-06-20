@@ -1,79 +1,41 @@
 'use client';
 import { motion } from 'framer-motion';
 
-interface APSRingProps {
-  score: number;
-  maxScore?: number;
-  size?: number;
-}
+interface APSRingProps { score: number; size?: number; }
 
-export default function APSRing({ score, maxScore = 42, size = 120 }: APSRingProps) {
-  const radius = (size - 20) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const percent = Math.min(score / maxScore, 1);
-  const offset = circumference - percent * circumference;
-
-  const getColor = () => {
-    if (percent >= 0.8) return '#CAFF00';
-    if (percent >= 0.6) return '#86efac';
-    if (percent >= 0.4) return '#fbbf24';
-    return '#f87171';
-  };
-
-  const getLabel = () => {
-    if (percent >= 0.85) return 'Excellent';
-    if (percent >= 0.70) return 'Strong';
-    if (percent >= 0.55) return 'Good';
-    if (percent >= 0.40) return 'Average';
-    return 'Developing';
-  };
+export default function APSRing({ score, size = 120 }: APSRingProps) {
+  const max = 42;
+  const pct = Math.min(score / max, 1);
+  const r = (size - 20) / 2;
+  const circ = 2 * Math.PI * r;
+  const offset = circ * (1 - pct);
+  const color = score >= 35 ? '#CAFF00' : score >= 28 ? '#86efac' : score >= 20 ? '#fbbf24' : '#f87171';
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="relative" style={{ width: size, height: size }}>
-        <svg width={size} height={size} className="progress-ring">
-          {/* Track */}
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            stroke="rgba(255,255,255,0.06)"
-            strokeWidth={10}
-          />
-          {/* Progress */}
-          <motion.circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            stroke={getColor()}
-            strokeWidth={10}
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            initial={{ strokeDashoffset: circumference }}
-            animate={{ strokeDashoffset: offset }}
-            transition={{ duration: 1.2, ease: [0.34, 1.56, 0.64, 1] }}
-            style={{ filter: `drop-shadow(0 0 8px ${getColor()}60)` }}
-          />
-        </svg>
-        {/* Center text */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <motion.span
-            className="text-3xl font-display font-bold"
-            style={{ color: getColor() }}
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5, duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
-          >
-            {score}
-          </motion.span>
-          <span className="text-[10px] text-[#666] uppercase tracking-wider">/ {maxScore}</span>
-        </div>
-      </div>
-      <div className="text-center">
-        <div className="text-xs font-semibold" style={{ color: getColor() }}>{getLabel()}</div>
-        <div className="text-[11px] text-[#555] mt-0.5">APS Score</div>
+    <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth={8} />
+        <motion.circle
+          cx={size/2} cy={size/2} r={r}
+          fill="none" stroke={color} strokeWidth={8}
+          strokeLinecap="round"
+          strokeDasharray={circ}
+          initial={{ strokeDashoffset: circ }}
+          animate={{ strokeDashoffset: offset }}
+          transition={{ duration: 1, ease: 'easeOut' }}
+        />
+      </svg>
+      <div className="absolute text-center">
+        <motion.p
+          className="font-mono font-bold text-white"
+          style={{ fontSize: size * 0.22 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          {score}
+        </motion.p>
+        <p className="text-[#555] font-mono" style={{ fontSize: size * 0.09 }}>/ 42</p>
       </div>
     </div>
   );

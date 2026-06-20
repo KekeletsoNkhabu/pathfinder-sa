@@ -1,9 +1,9 @@
-'use client';
-import { useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, ChevronDown, Info } from 'lucide-react';
-import { AVAILABLE_SUBJECTS, DEFAULT_SUBJECTS } from '@/data/subjects';
-import { cn } from '@/utils/cn';
+"use client";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Plus, Trash2, ChevronDown, Info } from "lucide-react";
+import { AVAILABLE_SUBJECTS, DEFAULT_SUBJECTS } from "@/data/subjects";
+import { cn } from "@/utils/cn";
 
 export interface SubjectEntry {
   name: string;
@@ -20,7 +20,7 @@ export default function SubjectForm({ subjects, onChange }: SubjectFormProps) {
 
   const addSubject = () => {
     if (subjects.length >= 9) return;
-    onChange([...subjects, { name: '', mark: '' }]);
+    onChange([...subjects, { name: "", mark: "" }]);
   };
 
   const removeSubject = (index: number) => {
@@ -28,27 +28,35 @@ export default function SubjectForm({ subjects, onChange }: SubjectFormProps) {
     onChange(subjects.filter((_, i) => i !== index));
   };
 
-  const updateSubject = (index: number, field: 'name' | 'mark', value: string) => {
-    const updated = subjects.map((s, i) => i === index ? { ...s, [field]: value } : s);
+  const updateSubject = (
+    index: number,
+    field: "name" | "mark",
+    value: string,
+  ) => {
+    const updated = subjects.map((s, i) =>
+      i === index ? { ...s, [field]: value } : s,
+    );
     onChange(updated);
   };
 
-  const usedNames = subjects.map(s => s.name).filter(Boolean);
+  const usedNames = subjects.map((s) => s.name).filter(Boolean);
   const availableFor = (index: number) =>
-    AVAILABLE_SUBJECTS.filter(s => !usedNames.includes(s.name) || subjects[index].name === s.name);
+    AVAILABLE_SUBJECTS.filter(
+      (s) => !usedNames.includes(s.name) || subjects[index].name === s.name,
+    );
 
   const getMarkColor = (mark: string) => {
     const n = Number(mark);
-    if (!mark || isNaN(n)) return 'border-white/10';
-    if (n >= 80) return 'border-[#CAFF00]/50 bg-[#CAFF00]/5';
-    if (n >= 70) return 'border-green-400/50 bg-green-400/5';
-    if (n >= 60) return 'border-emerald-400/40 bg-emerald-400/5';
-    if (n >= 50) return 'border-yellow-400/40 bg-yellow-400/5';
-    if (n >= 40) return 'border-orange-400/40 bg-orange-400/5';
-    return 'border-red-400/40 bg-red-400/5';
+    if (!mark || isNaN(n)) return "border-white/10";
+    if (n >= 80) return "border-[#CAFF00]/50 bg-[#CAFF00]/5";
+    if (n >= 70) return "border-green-400/50 bg-green-400/5";
+    if (n >= 60) return "border-emerald-400/40 bg-emerald-400/5";
+    if (n >= 50) return "border-yellow-400/40 bg-yellow-400/5";
+    if (n >= 40) return "border-orange-400/40 bg-orange-400/5";
+    return "border-red-400/40 bg-red-400/5";
   };
 
-  const getMarkAPS = (mark: string) => {
+  const getMarkAPS = (mark: string): number | null => {
     const n = Number(mark);
     if (!mark || isNaN(n)) return null;
     if (n >= 80) return 7;
@@ -60,8 +68,24 @@ export default function SubjectForm({ subjects, onChange }: SubjectFormProps) {
     return 1;
   };
 
+  const getAPSColor = (aps: number | null) => {
+    if (aps === null) return "text-[#333] bg-white/3";
+    if (aps >= 6)
+      return "text-[#CAFF00] bg-[#CAFF00]/10 border border-[#CAFF00]/20";
+    if (aps >= 4)
+      return "text-amber-400 bg-amber-400/10 border border-amber-400/20";
+    return "text-red-400 bg-red-400/10 border border-red-400/20";
+  };
+
   // Group subjects
-  const groups = ['Languages', 'Core', 'Sciences', 'Technology', 'Commerce', 'Humanities'] as const;
+  const groups = [
+    "Languages",
+    "Core",
+    "Sciences",
+    "Technology",
+    "Commerce",
+    "Humanities",
+  ] as const;
 
   return (
     <div className="space-y-3">
@@ -73,16 +97,26 @@ export default function SubjectForm({ subjects, onChange }: SubjectFormProps) {
             data-tooltip="Add your Grade 12 NSC subjects and percentage marks. APS will be calculated automatically."
             className="cursor-help"
           >
-            <Info size={13} className="text-[#555] hover:text-[#CAFF00] transition-colors" />
+            <Info
+              size={13}
+              className="text-[#555] hover:text-[#CAFF00] transition-colors"
+            />
           </span>
         </div>
-        <span className="text-xs text-[#555] font-mono">{subjects.length}/9 subjects</span>
+        <span className="text-xs text-[#555] font-mono">
+          {subjects.length}/9 subjects
+        </span>
       </div>
 
       {/* Column headers */}
-      <div className="grid grid-cols-[1fr_100px_32px] gap-2 px-1">
-        <span className="text-[10px] text-[#444] uppercase tracking-wider">Subject</span>
-        <span className="text-[10px] text-[#444] uppercase tracking-wider text-center">Mark % → APS</span>
+      <div className="grid grid-cols-[1fr_90px_52px] gap-2 px-1">
+        <span className="text-[10px] text-[#444] uppercase tracking-wider">
+          Subject
+        </span>
+        <span className="text-[10px] text-[#444] uppercase tracking-wider text-center">
+          Mark %
+        </span>
+        {/* APS shown inline with delete — no separate header needed */}
         <span></span>
       </div>
 
@@ -93,25 +127,34 @@ export default function SubjectForm({ subjects, onChange }: SubjectFormProps) {
             <motion.div
               key={index}
               initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
+              animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <div className="grid grid-cols-[1fr_100px_32px] gap-2 items-center">
+              {/* Layout: [subject selector] [mark input] [APS badge + delete] */}
+              <div className="grid grid-cols-[1fr_90px_52px] gap-2 items-center">
                 {/* Subject selector */}
                 <div className="relative">
                   <button
                     type="button"
-                    onClick={() => setOpenDropdown(openDropdown === index ? null : index)}
+                    onClick={() =>
+                      setOpenDropdown(openDropdown === index ? null : index)
+                    }
                     className={cn(
-                      'input-field text-left flex items-center justify-between',
-                      !subject.name && 'text-[#444]'
+                      "input-field text-left flex items-center justify-between",
+                      !subject.name && "text-[#444]",
                     )}
                   >
                     <span className="truncate text-sm">
-                      {subject.name || 'Select subject…'}
+                      {subject.name || "Select subject…"}
                     </span>
-                    <ChevronDown size={14} className={cn('flex-shrink-0 text-[#555] transition-transform', openDropdown === index && 'rotate-180')} />
+                    <ChevronDown
+                      size={14}
+                      className={cn(
+                        "flex-shrink-0 text-[#555] transition-transform",
+                        openDropdown === index && "rotate-180",
+                      )}
+                    />
                   </button>
 
                   {/* Dropdown */}
@@ -122,27 +165,31 @@ export default function SubjectForm({ subjects, onChange }: SubjectFormProps) {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -8 }}
                         className="absolute top-full left-0 right-0 mt-1 z-50 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl overflow-hidden"
-                        style={{ maxHeight: 280, overflowY: 'auto' }}
+                        style={{ maxHeight: 280, overflowY: "auto" }}
                       >
-                        {groups.map(group => {
-                          const groupSubjects = availableFor(index).filter(s => s.group === group);
+                        {groups.map((group) => {
+                          const groupSubjects = availableFor(index).filter(
+                            (s) => s.group === group,
+                          );
                           if (!groupSubjects.length) return null;
                           return (
                             <div key={group}>
                               <div className="px-3 py-1.5 text-[10px] text-[#444] uppercase tracking-wider bg-white/2 sticky top-0">
                                 {group}
                               </div>
-                              {groupSubjects.map(s => (
+                              {groupSubjects.map((s) => (
                                 <button
                                   key={s.name}
                                   type="button"
                                   onClick={() => {
-                                    updateSubject(index, 'name', s.name);
+                                    updateSubject(index, "name", s.name);
                                     setOpenDropdown(null);
                                   }}
                                   className={cn(
-                                    'w-full text-left px-3 py-2 text-sm hover:bg-white/5 transition-colors',
-                                    subject.name === s.name ? 'text-[#CAFF00] bg-[#CAFF00]/5' : 'text-[#bbb]'
+                                    "w-full text-left px-3 py-2 text-sm hover:bg-white/5 transition-colors",
+                                    subject.name === s.name
+                                      ? "text-[#CAFF00] bg-[#CAFF00]/5"
+                                      : "text-[#bbb]",
                                   )}
                                 >
                                   {s.name}
@@ -156,39 +203,41 @@ export default function SubjectForm({ subjects, onChange }: SubjectFormProps) {
                   </AnimatePresence>
                 </div>
 
-                {/* Mark input with APS indicator */}
-                <div className="relative flex items-center gap-1">
-                  <input
-                    type="number"
-                    min={0}
-                    max={100}
-                    value={subject.mark}
-                    onChange={e => updateSubject(index, 'mark', e.target.value)}
-                    placeholder="0–100"
-                    className={cn(
-                      'input-field text-center w-14 flex-shrink-0 transition-all',
-                      getMarkColor(subject.mark)
-                    )}
-                  />
-                  <div className={cn(
-                    'w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold font-mono flex-shrink-0',
-                    aps !== null
-                      ? 'bg-white/5 text-[#CAFF00]'
-                      : 'bg-white/3 text-[#333]'
-                  )}>
-                    {aps ?? '–'}
-                  </div>
-                </div>
+                {/* Mark input */}
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={subject.mark}
+                  onChange={(e) => updateSubject(index, "mark", e.target.value)}
+                  placeholder="0–100"
+                  className={cn(
+                    "input-field text-center transition-all",
+                    getMarkColor(subject.mark),
+                  )}
+                />
 
-                {/* Remove */}
-                <button
-                  type="button"
-                  onClick={() => removeSubject(index)}
-                  disabled={subjects.length <= 4}
-                  className="p-1.5 rounded-lg text-[#444] hover:text-red-400 hover:bg-red-500/5 transition-all disabled:opacity-20 disabled:cursor-not-allowed"
-                >
-                  <Trash2 size={14} />
-                </button>
+                {/* APS badge stacked above delete icon — right column */}
+                <div className="flex flex-col items-center gap-1">
+                  {/* APS points badge */}
+                  <div
+                    className={cn(
+                      "w-full flex items-center justify-center rounded-md h-6 text-xs font-bold font-mono transition-all",
+                      getAPSColor(aps),
+                    )}
+                  >
+                    {aps !== null ? aps : "–"}
+                  </div>
+                  {/* Delete button */}
+                  <button
+                    type="button"
+                    onClick={() => removeSubject(index)}
+                    disabled={subjects.length <= 4}
+                    className="w-full flex items-center justify-center p-1 rounded-md text-[#444] hover:text-red-400 hover:bg-red-500/5 transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                </div>
               </div>
             </motion.div>
           );
@@ -208,6 +257,24 @@ export default function SubjectForm({ subjects, onChange }: SubjectFormProps) {
           Add subject
         </motion.button>
       )}
+
+      {/* APS scale hint */}
+      <div className="flex items-center justify-center gap-4 pt-1 flex-wrap">
+        {[
+          { label: "80%+", aps: 7, color: "text-[#CAFF00]" },
+          { label: "70%", aps: 6, color: "text-green-400" },
+          { label: "60%", aps: 5, color: "text-emerald-400" },
+          { label: "50%", aps: 4, color: "text-amber-400" },
+          { label: "40%", aps: 3, color: "text-orange-400" },
+        ].map((row) => (
+          <div key={row.aps} className="flex items-center gap-1">
+            <span className="text-[9px] text-[#444]">{row.label} =</span>
+            <span className={cn("text-[9px] font-bold font-mono", row.color)}>
+              {row.aps} pts
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

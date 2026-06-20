@@ -7,15 +7,34 @@ export async function POST(req: NextRequest) {
     .map((s: { name: string; mark: number }) => `${s.name}: ${s.mark}%`)
     .join(", ");
 
+  // Separate standard interests from custom free-text interests
+  const standardInterests = (interests as string[]).filter(
+    (i: string) => !i.startsWith("custom:"),
+  );
+  const customInterests = (interests as string[])
+    .filter((i: string) => i.startsWith("custom:"))
+    .map((i: string) => i.replace("custom:", ""));
+
+  const interestsList = [
+    ...standardInterests,
+    ...customInterests, // include verbatim — they are user-typed
+  ].join(", ");
+
+  const customNote =
+    customInterests.length > 0
+      ? `\nThe student also has these additional interests they typed themselves (take these seriously when matching): ${customInterests.join(", ")}.`
+      : "";
+
   const prompt = `You are a South African university admissions expert. A matric student has the following profile:
 
 APS Score: ${apsScore}/42
 Subjects and marks: ${subjectSummary}
-Interests: ${interests.join(", ")}
+Interests: ${interestsList || "general"}${customNote}
 
 Recommend the 10 most suitable degree/diploma programmes this student can study at South African universities (UCT, Wits, UP, Stellenbosch, UJ, UKZN, NWU, UNISA, TUT, UFS, Rhodes, CPUT, DUT, UWC, UNIZULU, UFH, WSU, MUT, SMU, SPU, UMP, VUT, CUT, UL, UNIVEN, Walter Sisulu).
 
 Be realistic about whether the student qualifies based on their APS and subject marks.
+Give extra weight to the student's stated interests — especially any custom interests they typed themselves.
 
 Respond ONLY with a valid JSON array, no markdown, no explanation:
 [
@@ -42,26 +61,29 @@ Respond ONLY with a valid JSON array, no markdown, no explanation:
 ]`;
 
   try {
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+    const response = await fetch(
+      "https://api.groq.com/openai/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          messages: [{ role: "user", content: prompt }],
+          temperature: 0.3,
+          max_tokens: 4000,
+        }),
       },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.3,
-        max_tokens: 4000,
-      }),
-    });
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Groq API error:", errorText);
       return NextResponse.json(
         { error: "Groq API error", detail: errorText },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -72,7 +94,7 @@ Respond ONLY with a valid JSON array, no markdown, no explanation:
       console.error("Empty Groq response:", JSON.stringify(data));
       return NextResponse.json(
         { error: "Empty response from Groq", detail: data },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -84,18 +106,17 @@ Respond ONLY with a valid JSON array, no markdown, no explanation:
       console.error("No JSON array found in:", raw);
       return NextResponse.json(
         { error: "No valid JSON found", raw },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     const recommendations = JSON.parse(clean.slice(start, end + 1));
     return NextResponse.json({ recommendations });
-
   } catch (e) {
     console.error("Unexpected error:", e);
     return NextResponse.json(
       { error: "JSON parse failed or unexpected error", detail: String(e) },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
