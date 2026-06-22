@@ -35,11 +35,20 @@ function formatZAR(n: number) {
 const KZN_IDS = ["ukzn", "dut", "mut", "unizulu"];
 
 function getAppFeeForUni(universityId: string): { fee: number; isFree: boolean; note: string } {
-  if (KZN_IDS.includes(universityId)) {
+  const id = universityId.toLowerCase().trim();
+
+  if (KZN_IDS.includes(id)) {
     return { fee: 250, isFree: false, note: "via CAO" };
   }
-  const info = UNIVERSITY_FEES.find(f => f.id === universityId);
-  if (!info) return { fee: 0, isFree: true, note: "FREE" };
+
+  const info = UNIVERSITY_FEES.find(f => f.id === id);
+
+  // If unknown: DON'T silently mark as free
+  if (!info) {
+    console.warn(`[getAppFeeForUni] Unknown university ID: "${universityId}"`);
+    return { fee: 0, isFree: false, note: "check university website" };
+  }
+
   return {
     fee: info.applicationFee,
     isFree: info.applicationFee === 0,
@@ -51,7 +60,7 @@ function calcCartTotal(items: { recommendation: AIRecommendation }[]): number {
   let total = SERVICE_FEE;
   let kznAdded = false;
   for (const item of items) {
-    const uid = item.recommendation.universityId;
+    const uid = item.recommendation.universityId.toLowerCase().trim();
     if (KZN_IDS.includes(uid)) {
       if (!kznAdded) { kznAdded = true; total += 250; }
     } else {

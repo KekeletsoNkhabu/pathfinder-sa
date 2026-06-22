@@ -197,7 +197,7 @@ export default function LandingPage() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-[#666]">Wits</span>
-                        <span className="text-emerald-400 font-semibold">FREE</span>
+                        <span className="text-emerald-400 font-semibold">R100</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-[#666]">UCT</span>

@@ -1,10 +1,8 @@
 {
   "/page": "app/page.js",
-  "/compare/page": "app/compare/page.js",
   "/results/page": "app/results/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/api/recommend/route": "app/api/recommend/route.js",
   "/apply/page": "app/apply/page.js",
-  "/university/[id]/page": "app/university/[id]/page.js",
-  "/api/university-programs/route": "app/api/university-programs/route.js"
+  "/apply/success/page": "app/apply/success/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/api/recommend/route": "app/api/recommend/route.js"
 }

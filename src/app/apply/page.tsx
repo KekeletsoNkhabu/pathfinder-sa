@@ -40,7 +40,7 @@ function buildFeeItems(items: ReturnType<typeof useApplicationCart>['items']) {
   const feeItems: { label: string; fee: number; isFree: boolean; note: string }[] = [];
   let kznAdded = false;
   for (const item of items) {
-    const uid = item.recommendation.universityId;
+    const uid = item.recommendation.universityId.toLowerCase().trim();
     const uName = item.recommendation.universityName;
     if (KZN_IDS.includes(uid)) {
       if (!kznAdded) {
